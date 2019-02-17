@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.utils import shuffle
+import random
 
 '''
 A. def train_test_split(X, y, test_size, shuffle, random_state=None) :
@@ -12,14 +13,12 @@ A. def train_test_split(X, y, test_size, shuffle, random_state=None) :
     - Example:
         X_train, X_test, y_train, y_test = train_test_split(feat_df, y, 0.3, True, 12)
 '''
-def train_test_splits(X, y, test_size, shuffle, random_states):
+def train_test_split(X, y, test_size, shuffle, random_states):
 
     X_train = None
     X_test = None
     y_train = None
     y_test = None
-
-    n_X = len(X)
 
     if (test_size < 0 or test_size > 1):    #len(X_test) = test_size * len(X))
         print("test_size should be between 0 and 1, so default = 0.25")
@@ -30,11 +29,14 @@ def train_test_splits(X, y, test_size, shuffle, random_states):
     y_train = y[test_size_int:]
     y_test = y[:test_size_int]
 
-
-    if (shuffle == True):       #random values in array
-        temp = np.random.shuffle(y_test)
-        print(temp)
-
+    if (shuffle == True or shuffle == None):       #random values in array
+        if(random_states == None):
+            X_train = X_train.sample(frac=1)
+            X_test = X_test.sample(frac=1)
+        else:
+            np.random.seed(int(random_states))
+            X_train = X_train.sample(frac=1)
+            X_test = X_test.sample(frac=1)
     return X_train, X_test, y_train, y_test
 
 '''
