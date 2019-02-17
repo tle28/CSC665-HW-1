@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
 
 '''
 A. def train_test_split(X, y, test_size, shuffle, random_state=None) :
@@ -13,21 +13,29 @@ A. def train_test_split(X, y, test_size, shuffle, random_state=None) :
         X_train, X_test, y_train, y_test = train_test_split(feat_df, y, 0.3, True, 12)
 '''
 def train_test_splits(X, y, test_size, shuffle, random_states):
-    rf = RandomForestRegressor()
-    rf.fit(X, y)
-    #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size, shuffle, random_state = random_states)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state =17)
-    #print(X.shape, X_train.shape, X_test.shape, y_train.shape, y_test.shape)
-    #print(rf.score(X_train, y_train))
-    #print(rf.score(X_test, y_test))
-    #print(rf.predict(X_test))
-    rf.fit(X_train, y_train)
-    #print(rf.estimators_[0].predict(X_test))
-    #print(rf.estimators_[1].predict(X_test))
-    #print(rf.estimators_[2].predict(X_test))
-    #print(rf.predict(X_test))
-    y_hat = rf.predict(X_test)
-    return y_hat, X_train, X_test, y_train, y_test
+
+    X_train = None
+    X_test = None
+    y_train = None
+    y_test = None
+
+    n_X = len(X)
+
+    if (test_size < 0 or test_size > 1):    #len(X_test) = test_size * len(X))
+        print("test_size should be between 0 and 1, so default = 0.25")
+        test_size = 0.25
+    test_size_int = int(len(X)*test_size)+1
+    X_train = X[test_size_int:]
+    X_test = X[:test_size_int]
+    y_train = y[test_size_int:]
+    y_test = y[:test_size_int]
+
+
+    if (shuffle == True):       #random values in array
+        temp = np.random.shuffle(y_test)
+        print(temp)
+
+    return X_train, X_test, y_train, y_test
 
 '''
 B. create_categories(df, list_columns)
@@ -71,15 +79,6 @@ def preprocess_ver_1(file_name):
         if s not in suburbs: suburbs[s] = len(suburbs)
     feat_df['Suburb'] = feat_df['Suburb'].replace(suburbs)
 
-    '''
-    feat_df['Type'] = feat_df['Type'].astype('category').cat.codes
-    feat_df['Address'] = feat_df['Address'].astype('category').cat.codes
-    feat_df['Method'] = feat_df['Method'].astype('category').cat.codes
-    feat_df['SellerG'] = feat_df['SellerG'].astype('category').cat.codes
-    feat_df['CouncilArea'] = feat_df['CouncilArea'].astype('category').cat.codes
-    feat_df['Regionname'] = feat_df['Regionname'].astype('category').cat.codes
-    '''
-
     list_columns = ['Type', 'Address', 'Method', 'SellerG', 'CouncilArea', 'Regionname']
 
     for i in range(0, len(list_columns)):
@@ -89,14 +88,8 @@ def preprocess_ver_1(file_name):
     feat_df['Date'] = pd.to_datetime(feat_df['Date'], infer_datetime_format=True)
     feat_df['Date'] = feat_df['Date'].astype(np.int64)
 
-    #print(feat_df)
-    rf = RandomForestRegressor()
-    rf.fit(feat_df, y)
-
     X = feat_df
     return X, y
-
-
 
 
 
